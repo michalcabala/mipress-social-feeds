@@ -11,8 +11,8 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
@@ -166,7 +166,7 @@ class SocialFeedResource extends Resource
                 ->schema([
                     Forms\Components\Toggle::make('filter_settings.hide_unavailable')
                         ->label('Skrýt nedostupné příspěvky')
-                        ->helperText('Příspěvky bez textu i bez médií (smazané / skryté)')
+                        ->helperText('Příspěvky bez textu i bez médií a příspěvky s attachmentem typu „Obsah teď není dostupný"')
                         ->default(true),
 
                     Forms\Components\TextInput::make('filter_settings.min_engagement')

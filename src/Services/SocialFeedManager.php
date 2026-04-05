@@ -108,6 +108,11 @@ class SocialFeedManager
         if ($feed->filterSetting('hide_unavailable')) {
             $filtered = $filtered->filter(function (mixed $post) {
                 $postData = $this->normalizePost($post);
+
+                if ($this->hasUnavailableAttachment($postData)) {
+                    return false;
+                }
+
                 $hasContent = ! empty($postData['content']);
                 $hasMedia = ! empty($postData['media']) && $postData['media'] !== '[]';
 
@@ -153,5 +158,60 @@ class SocialFeedManager
         }
 
         return [];
+    }
+
+    private function hasUnavailableAttachment(array $postData): bool
+    {
+        $rawData = $postData['raw_data'] ?? [];
+
+        if (! is_array($rawData)) {
+            return false;
+        }
+
+        $attachments = data_get($rawData, 'attachments.data', []);
+
+        if (! is_array($attachments) || empty($attachments)) {
+            return false;
+        }
+
+        foreach ($attachments as $attachment) {
+            $attachmentData = is_array($attachment) ? $attachment : (array) $attachment;
+            $title = (string) ($attachmentData['title'] ?? '');
+            $description = (string) ($attachmentData['description'] ?? '');
+            $normalizedText = str("{$title} {$description}")->lower()->squish()->toString();
+
+            if ($normalizedText === '') {
+                continue;
+            }
+
+            if ($this->isUnavailableAttachmentText($normalizedText)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isUnavailableAttachmentText(string $text): bool
+    {
+        $unavailablePhrases = [
+            'obsah teď není dostupný',
+            'obsah ted neni dostupny',
+            'tento obsah není dostupný',
+            'tento obsah neni dostupny',
+            "content isn't available",
+            'content is not available',
+            "this content isn't available",
+            'this content is not available',
+            'content unavailable',
+        ];
+
+        foreach ($unavailablePhrases as $phrase) {
+            if (str_contains($text, $phrase)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
