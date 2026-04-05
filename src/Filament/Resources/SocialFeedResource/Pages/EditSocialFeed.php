@@ -46,4 +46,13 @@ class EditSocialFeed extends EditRecord
             ]),
         ];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            FeedPreviewWidget::make([
+                'record' => $this->getRecord(),
+            ]),
+        ];
+    }
 }
