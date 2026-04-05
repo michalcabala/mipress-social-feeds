@@ -74,6 +74,10 @@ class SocialFeed extends Model
         $resolvedDefault = $default ?? ($defaults[$key] ?? null);
         $value = data_get($this->settings, $key, $resolvedDefault);
 
+        if ($value === null || $value === '') {
+            $value = $resolvedDefault;
+        }
+
         return match ($key) {
             'show_author', 'show_engagement', 'show_permalink' => (bool) $value,
             'content_length' => max(50, (int) $value),
