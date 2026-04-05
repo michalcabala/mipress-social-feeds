@@ -162,6 +162,14 @@ class SocialFeedManager
 
     private function hasUnavailableAttachment(array $postData): bool
     {
+        // Albums/photos/videos can carry generic attachment text, but if media is available,
+        // the post should stay visible.
+        $hasResolvedMedia = ! empty($postData['media']) && $postData['media'] !== '[]';
+
+        if ($hasResolvedMedia) {
+            return false;
+        }
+
         $rawData = $postData['raw_data'] ?? [];
 
         if (! is_array($rawData)) {
