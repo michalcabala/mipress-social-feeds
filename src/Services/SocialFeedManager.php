@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use MiPress\SocialFeeds\Contracts\SocialProvider;
 use MiPress\SocialFeeds\Enums\SocialPlatform;
+use MiPress\SocialFeeds\Models\SocialAccount;
 use MiPress\SocialFeeds\Models\SocialFeed;
 use MiPress\SocialFeeds\Models\SocialPost;
 use MiPress\SocialFeeds\Providers\FacebookProvider;
@@ -71,6 +72,7 @@ class SocialFeedManager
         }
 
         $provider = $this->resolve($account->platform);
+        $this->syncAccountProfile($account, $provider);
 
         $posts = $provider->fetchPosts($account, [
             'posts_count' => $feed->posts_count,
@@ -221,5 +223,31 @@ class SocialFeedManager
         }
 
         return false;
+    }
+
+    private function syncAccountProfile(SocialAccount $account, SocialProvider $provider): void
+    {
+        try {
+            $profile = $provider->fetchProfile($account);
+
+            if (empty($profile)) {
+                return;
+            }
+
+            $meta = is_array($account->meta) ? $account->meta : [];
+            $account->update([
+                'name' => $profile['name'] ?? $account->name,
+                'avatar_url' => data_get($profile, 'picture.data.url', $account->avatar_url),
+                'meta' => [
+                    ...$meta,
+                    'fan_count' => $profile['fan_count'] ?? data_get($meta, 'fan_count'),
+                    'about' => $profile['about'] ?? data_get($meta, 'about'),
+                    'link' => $profile['link'] ?? data_get($meta, 'link'),
+                    'cover_url' => data_get($profile, 'cover.source', data_get($meta, 'cover_url')),
+                ],
+            ]);
+        } catch (\Throwable) {
+            // Feed rendering should not fail when profile metadata cannot be refreshed.
+        }
     }
 }

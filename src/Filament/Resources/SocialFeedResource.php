@@ -121,6 +121,11 @@ class SocialFeedResource extends Resource
                         ->helperText('Relativní čas publikace (např. před 2 hodinami)')
                         ->default(true),
 
+                    Forms\Components\Toggle::make('settings.show_page_widget')
+                        ->label('Zobrazit kartičku stránky nad feedem')
+                        ->helperText('Název stránky, logo/avatar a počet sledujících')
+                        ->default(true),
+
                     Forms\Components\Toggle::make('settings.show_engagement')
                         ->label('Zobrazit reakce a komentáře')
                         ->helperText('Počet reakcí, komentářů a sdílení')

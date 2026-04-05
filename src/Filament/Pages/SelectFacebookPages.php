@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use MiPress\SocialFeeds\Enums\SocialPlatform;
 use MiPress\SocialFeeds\Models\SocialAccount;
+use MiPress\SocialFeeds\Services\SocialFeedManager;
 
 class SelectFacebookPages extends Page
 {
@@ -111,7 +112,7 @@ class SelectFacebookPages extends Page
                 continue;
             }
 
-            SocialAccount::updateOrCreate(
+            $account = SocialAccount::updateOrCreate(
                 [
                     'platform' => SocialPlatform::Facebook,
                     'platform_account_id' => $page['id'],
@@ -127,12 +128,35 @@ class SelectFacebookPages extends Page
                         'page_id' => $page['id'],
                         'category' => $page['category'] ?? null,
                         'link' => $page['link'] ?? null,
+                        'fan_count' => $page['fan_count'] ?? null,
                         'user_id' => $cached['user_id'] ?? null,
                         'user_name' => $cached['user_name'] ?? null,
                     ],
                     'connected_by' => $userId,
                 ]
             );
+
+            try {
+                $provider = app(SocialFeedManager::class)->resolve(SocialPlatform::Facebook);
+                $profile = $provider->fetchProfile($account);
+
+                if (! empty($profile)) {
+                    $meta = is_array($account->meta) ? $account->meta : [];
+                    $account->update([
+                        'name' => $profile['name'] ?? $account->name,
+                        'avatar_url' => data_get($profile, 'picture.data.url', $account->avatar_url),
+                        'meta' => [
+                            ...$meta,
+                            'fan_count' => $profile['fan_count'] ?? data_get($meta, 'fan_count'),
+                            'about' => $profile['about'] ?? data_get($meta, 'about'),
+                            'link' => $profile['link'] ?? data_get($meta, 'link'),
+                            'cover_url' => data_get($profile, 'cover.source', data_get($meta, 'cover_url')),
+                        ],
+                    ]);
+                }
+            } catch (\Throwable) {
+                // The page connection should succeed even if profile enrichment fails.
+            }
             $count++;
         }
 

@@ -64,6 +64,7 @@ class SocialFeed extends Model
         $defaults = [
             'show_author' => true,
             'show_posted_at' => true,
+            'show_page_widget' => true,
             'show_engagement' => true,
             'show_permalink' => true,
             'content_length' => 300,
@@ -80,7 +81,7 @@ class SocialFeed extends Model
         }
 
         return match ($key) {
-            'show_author', 'show_posted_at', 'show_engagement', 'show_permalink' => (bool) $value,
+            'show_author', 'show_posted_at', 'show_page_widget', 'show_engagement', 'show_permalink' => (bool) $value,
             'content_length' => max(50, (int) $value),
             'per_page' => max(1, (int) $value),
             'columns' => min(6, max(1, (int) $value)),

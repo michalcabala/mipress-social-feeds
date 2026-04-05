@@ -39,6 +39,22 @@ class SocialAccount extends Model
 
     // ── Accessors (šifrování tokenů) ──
 
+    public function getFollowerCountAttribute(): ?int
+    {
+        $candidates = [
+            data_get($this->meta, 'fan_count'),
+            data_get($this->meta, 'followers_count'),
+        ];
+
+        foreach ($candidates as $value) {
+            if (is_numeric($value)) {
+                return max(0, (int) $value);
+            }
+        }
+
+        return null;
+    }
+
     public function getDecryptedTokenAttribute(): ?string
     {
         if (! $this->access_token) {
