@@ -4,6 +4,7 @@
     $engagement = is_array($post->engagement ?? null) ? (object) $post->engagement : (object) [];
     $platform = $feed->account->platform;
     $contentLength = $feed->displaySetting('content_length', 300);
+    $isAlbum = (($post->post_type ?? '') === 'album') || count($media) > 1;
 @endphp
 
 <article class="sf-post sf-post--{{ $post->post_type ?? 'text' }}">
@@ -34,13 +35,42 @@
     {{-- Média --}}
     @if(! empty($media))
     <div class="sf-post__media mb-3">
-        @foreach(array_slice($media, 0, 4) as $item)
-            @if(($item['type'] ?? '') === 'video')
-                <video src="{{ $item['url'] }}" poster="{{ $item['thumbnail_url'] ?? '' }}" controls class="w-full rounded"></video>
-            @else
-                <img src="{{ $item['url'] }}" alt="" class="w-full rounded" loading="lazy">
-            @endif
-        @endforeach
+        @if($isAlbum)
+            <div class="grid grid-cols-2 gap-2">
+                @foreach(array_slice($media, 0, 4) as $index => $item)
+                    @php
+                        $itemType = $item['type'] ?? 'image';
+                        $itemUrl = $item['url'] ?? null;
+                        $thumbnailUrl = $item['thumbnail_url'] ?? $itemUrl;
+                        $isLastVisibleItem = $index === 3 && count($media) > 4;
+                    @endphp
+
+                    @if($thumbnailUrl)
+                        <div class="relative overflow-hidden rounded bg-gray-100">
+                            @if($itemType === 'video')
+                                <video src="{{ $itemUrl }}" poster="{{ $thumbnailUrl }}" controls class="h-36 w-full object-cover"></video>
+                            @else
+                                <img src="{{ $thumbnailUrl }}" alt="" class="h-36 w-full object-cover" loading="lazy">
+                            @endif
+
+                            @if($isLastVisibleItem)
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/50 text-lg font-semibold text-white">
+                                    +{{ count($media) - 4 }}
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @else
+            @foreach(array_slice($media, 0, 4) as $item)
+                @if(($item['type'] ?? '') === 'video')
+                    <video src="{{ $item['url'] }}" poster="{{ $item['thumbnail_url'] ?? '' }}" controls class="w-full rounded"></video>
+                @else
+                    <img src="{{ $item['url'] }}" alt="" class="w-full rounded" loading="lazy">
+                @endif
+            @endforeach
+        @endif
     </div>
     @endif
 
