@@ -14,6 +14,11 @@ class EditSocialFeed extends EditRecord
 {
     protected static string $resource = SocialFeedResource::class;
 
+    protected function afterSave(): void
+    {
+        $this->dispatch('feed-updated');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

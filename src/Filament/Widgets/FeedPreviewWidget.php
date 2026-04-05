@@ -4,6 +4,7 @@ namespace MiPress\SocialFeeds\Filament\Widgets;
 
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Attributes\On;
 use MiPress\SocialFeeds\Models\SocialFeed;
 use MiPress\SocialFeeds\Services\SocialFeedManager;
 
@@ -14,6 +15,12 @@ class FeedPreviewWidget extends Widget
     public ?Model $record = null;
 
     protected int|string|array $columnSpan = 'full';
+
+    #[On('feed-updated')]
+    public function refreshPreview(): void
+    {
+        $this->record?->refresh();
+    }
 
     protected function getViewData(): array
     {
