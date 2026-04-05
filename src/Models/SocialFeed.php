@@ -57,6 +57,34 @@ class SocialFeed extends Model
         return "{$prefix}:{$this->id}";
     }
 
+    // ── Display Settings Helpers ──
+
+    public function displaySetting(string $key, mixed $default = null): mixed
+    {
+        $defaults = [
+            'show_author' => true,
+            'show_engagement' => true,
+            'show_permalink' => true,
+            'content_length' => 300,
+            'per_page' => 5,
+            'pagination_type' => 'none',
+            'columns' => 3,
+        ];
+
+        return data_get($this->settings, $key, $default ?? ($defaults[$key] ?? null));
+    }
+
+    public function filterSetting(string $key, mixed $default = null): mixed
+    {
+        $defaults = [
+            'hide_unavailable' => true,
+            'min_engagement' => 0,
+            'exclude_types' => [],
+        ];
+
+        return data_get($this->filter_settings, $key, $default ?? ($defaults[$key] ?? null));
+    }
+
     // ── Relationships ──
 
     public function account(): BelongsTo

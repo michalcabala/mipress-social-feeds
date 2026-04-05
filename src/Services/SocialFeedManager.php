@@ -34,7 +34,7 @@ class SocialFeedManager
         $cached = $cacheStore->get($feed->cacheKey());
 
         if ($cached instanceof Collection) {
-            return $cached;
+            return $this->applyFilters($feed, $cached);
         }
 
         // Cache miss or corrupted entry (e.g. __PHP_Incomplete_Class)
@@ -44,7 +44,7 @@ class SocialFeedManager
 
         $cacheStore->put($feed->cacheKey(), $data, $feed->cache_ttl);
 
-        return $data;
+        return $this->applyFilters($feed, $data);
     }
 
     public function refreshFeed(SocialFeed $feed): Collection
@@ -98,5 +98,41 @@ class SocialFeedManager
                 'engagement', 'author_name', 'author_avatar_url',
                 'permalink', 'posted_at', 'raw_data',
             ]));
+    }
+
+    private function applyFilters(SocialFeed $feed, Collection $posts): Collection
+    {
+        $filtered = $posts;
+
+        // Skrýt nedostupné příspěvky (bez textu i bez médií)
+        if ($feed->filterSetting('hide_unavailable')) {
+            $filtered = $filtered->filter(function (array $post) {
+                $hasContent = ! empty($post['content']);
+                $hasMedia = ! empty($post['media']) && $post['media'] !== '[]';
+
+                return $hasContent || $hasMedia;
+            });
+        }
+
+        // Minimální počet interakcí
+        $minEngagement = (int) $feed->filterSetting('min_engagement', 0);
+        if ($minEngagement > 0) {
+            $filtered = $filtered->filter(function (array $post) use ($minEngagement) {
+                $engagement = is_array($post['engagement'] ?? null) ? $post['engagement'] : [];
+                $total = ($engagement['reactions'] ?? $engagement['likes'] ?? 0)
+                    + ($engagement['comments'] ?? 0)
+                    + ($engagement['shares'] ?? 0);
+
+                return $total >= $minEngagement;
+            });
+        }
+
+        // Vyloučit typy příspěvků
+        $excludeTypes = $feed->filterSetting('exclude_types', []);
+        if (! empty($excludeTypes)) {
+            $filtered = $filtered->reject(fn (array $post) => in_array($post['post_type'] ?? '', $excludeTypes, true));
+        }
+
+        return $filtered->values();
     }
 }

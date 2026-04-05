@@ -22,7 +22,7 @@ class SocialAccountResource extends Resource
 {
     protected static ?string $model = SocialAccount::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
+    protected static string|\BackedEnum|null $navigationIcon = 'fal-share-nodes';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Sociální sítě';
 

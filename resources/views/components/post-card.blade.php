@@ -3,11 +3,12 @@
     $media = is_array($post->media ?? null) ? $post->media : [];
     $engagement = is_array($post->engagement ?? null) ? (object) $post->engagement : (object) [];
     $platform = $feed->account->platform;
+    $contentLength = $feed->displaySetting('content_length', 300);
 @endphp
 
 <article class="sf-post sf-post--{{ $post->post_type ?? 'text' }}">
-    {{-- Header --}}
-    @if($post->author_name ?? false)
+    {{-- Header (název stránky / autor) --}}
+    @if($feed->displaySetting('show_author') && ($post->author_name ?? false))
     <div class="sf-post__header flex items-center gap-3 mb-2">
         @if($post->author_avatar_url ?? false)
             <img src="{{ $post->author_avatar_url }}" alt="" class="w-10 h-10 rounded-full">
@@ -26,7 +27,7 @@
     {{-- Obsah --}}
     @if($post->content ?? false)
     <div class="sf-post__content mb-3">
-        <p>{!! nl2br(e(Str::limit($post->content, 300))) !!}</p>
+        <p>{!! nl2br(e(Str::limit($post->content, $contentLength))) !!}</p>
     </div>
     @endif
 
@@ -43,7 +44,8 @@
     </div>
     @endif
 
-    {{-- Engagement --}}
+    {{-- Engagement (reakce, komentáře, sdílení) --}}
+    @if($feed->displaySetting('show_engagement'))
     <div class="sf-post__engagement flex gap-4 text-sm text-gray-500">
         @if(($engagement->reactions ?? 0) > 0 || ($engagement->likes ?? 0) > 0)
             <span>👍 {{ $engagement->reactions ?? $engagement->likes ?? 0 }}</span>
@@ -55,9 +57,10 @@
             <span>↗️ {{ $engagement->shares }}</span>
         @endif
     </div>
+    @endif
 
     {{-- Odkaz na originál --}}
-    @if($post->permalink ?? false)
+    @if($feed->displaySetting('show_permalink') && ($post->permalink ?? false))
     <a href="{{ $post->permalink }}" target="_blank" rel="noopener"
        class="sf-post__link text-sm mt-2 inline-block hover:underline"
        style="color: {{ $platform->color() }}">

@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
@@ -27,7 +28,7 @@ class SocialFeedResource extends Resource
 {
     protected static ?string $model = SocialFeed::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rss';
+    protected static string|\BackedEnum|null $navigationIcon = 'fal-rss';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Sociální sítě';
 
@@ -89,11 +90,12 @@ class SocialFeedResource extends Resource
                         ->live(),
 
                     Forms\Components\TextInput::make('posts_count')
-                        ->label('Počet příspěvků')
+                        ->label('Celkový počet příspěvků')
                         ->numeric()
-                        ->default(5)
+                        ->default(10)
                         ->minValue(1)
-                        ->maxValue(50),
+                        ->maxValue(100)
+                        ->helperText('Kolik příspěvků se stáhne z API / uloží do DB'),
 
                     Forms\Components\TextInput::make('cache_ttl')
                         ->label('Cache TTL (sekundy)')
@@ -106,12 +108,87 @@ class SocialFeedResource extends Resource
                         ->default(true),
                 ])->columns(2),
 
-            Section::make('Rozšířená nastavení')
+            Section::make('Nastavení zobrazení')
+                ->description('Ovládá, co se zobrazí u jednotlivých příspěvků a jak se stránkují.')
                 ->schema([
-                    Forms\Components\KeyValue::make('settings')
-                        ->label('Nastavení layoutu')
-                        ->helperText('Volitelné klíč-hodnota parametry pro šablonu (columns, gap, show_avatar…)'),
-                ])
+                    Forms\Components\Toggle::make('settings.show_author')
+                        ->label('Zobrazit název stránky / autora')
+                        ->helperText('Název a avatar autora u každého příspěvku')
+                        ->default(true),
+
+                    Forms\Components\Toggle::make('settings.show_engagement')
+                        ->label('Zobrazit reakce a komentáře')
+                        ->helperText('Počet reakcí, komentářů a sdílení')
+                        ->default(true),
+
+                    Forms\Components\Toggle::make('settings.show_permalink')
+                        ->label('Zobrazit odkaz na originál')
+                        ->helperText('Odkaz „Zobrazit na Facebooku →"')
+                        ->default(true),
+
+                    Forms\Components\TextInput::make('settings.content_length')
+                        ->label('Max. délka textu příspěvku')
+                        ->numeric()
+                        ->default(300)
+                        ->minValue(50)
+                        ->maxValue(2000)
+                        ->helperText('Počet znaků, poté se ořízne'),
+
+                    Forms\Components\TextInput::make('settings.per_page')
+                        ->label('Příspěvků na stránku')
+                        ->numeric()
+                        ->default(5)
+                        ->minValue(1)
+                        ->maxValue(50)
+                        ->helperText('Kolik příspěvků se zobrazí najednou')
+                        ->visible(fn (Get $get): bool => ($get('settings.pagination_type') ?? 'none') !== 'none'),
+
+                    Forms\Components\Select::make('settings.pagination_type')
+                        ->label('Stránkování')
+                        ->options([
+                            'none' => 'Žádné — zobrazit vše',
+                            'load_more' => 'Tlačítko „Načíst více"',
+                        ])
+                        ->default('none')
+                        ->live(),
+
+                    Forms\Components\TextInput::make('settings.columns')
+                        ->label('Počet sloupců')
+                        ->numeric()
+                        ->default(3)
+                        ->minValue(2)
+                        ->maxValue(6)
+                        ->visible(fn (Get $get): bool => in_array($get('layout'), ['grid', 'masonry'])),
+                ])->columns(2),
+
+            Section::make('Filtrování příspěvků')
+                ->description('Automaticky skryje příspěvky, které nesplňují podmínky.')
+                ->schema([
+                    Forms\Components\Toggle::make('filter_settings.hide_unavailable')
+                        ->label('Skrýt nedostupné příspěvky')
+                        ->helperText('Příspěvky bez textu i bez médií (smazané / skryté)')
+                        ->default(true),
+
+                    Forms\Components\TextInput::make('filter_settings.min_engagement')
+                        ->label('Minimální počet interakcí')
+                        ->numeric()
+                        ->default(0)
+                        ->minValue(0)
+                        ->helperText('Skryje příspěvky s menším součtem reakcí + komentářů + sdílení'),
+
+                    Forms\Components\Select::make('filter_settings.exclude_types')
+                        ->label('Vyloučit typy příspěvků')
+                        ->multiple()
+                        ->options([
+                            'status' => 'Stavové zprávy',
+                            'link' => 'Odkazy',
+                            'photo' => 'Fotky',
+                            'video' => 'Videa',
+                            'event' => 'Události',
+                            'offer' => 'Nabídky',
+                        ])
+                        ->helperText('Vybrané typy se nezobrazí'),
+                ])->columns(2)
                 ->collapsed(),
         ]);
     }
