@@ -26,7 +26,7 @@ class SocialFeedBrick extends Brick
 
     public static function getIcon(): string
     {
-        return 'heroicon-o-share';
+        return 'fal-share-nodes';
     }
 
     public static function toHtml(array $config, ?array $data = null): ?string

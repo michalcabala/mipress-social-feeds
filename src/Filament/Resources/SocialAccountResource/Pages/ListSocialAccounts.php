@@ -16,7 +16,7 @@ class ListSocialAccounts extends ListRecords
         return collect(SocialPlatform::enabled())->map(
             fn (SocialPlatform $p) => Action::make("connect_{$p->value}")
                 ->label("Připojit {$p->label()}")
-                ->icon('heroicon-o-plus-circle')
+                ->icon('fal-circle-plus')
                 ->url(route('social.auth.redirect', $p->value))
         )->all();
     }

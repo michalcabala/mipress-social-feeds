@@ -237,7 +237,7 @@ class SocialFeedResource extends Resource
             ->actions([
                 Action::make('refresh')
                     ->label('Obnovit')
-                    ->icon('heroicon-o-arrow-path')
+                    ->icon('fal-arrows-rotate')
                     ->action(function (SocialFeed $record) {
                         RefreshFeedJob::dispatch($record->id);
                         Notification::make()
@@ -252,7 +252,7 @@ class SocialFeedResource extends Resource
                 DeleteBulkAction::make(),
                 BulkAction::make('refresh_all')
                     ->label('Obnovit vybrané')
-                    ->icon('heroicon-o-arrow-path')
+                    ->icon('fal-arrows-rotate')
                     ->action(function (Collection $records) {
                         $records->each(fn (SocialFeed $feed) => RefreshFeedJob::dispatch($feed->id));
                         Notification::make()

@@ -1,5 +1,5 @@
 <x-filament-widgets::widget>
-    <x-filament::section heading="Náhled feedu" icon="heroicon-o-eye" collapsible>
+    <x-filament::section heading="Náhled feedu" icon="fal-eye" collapsible>
         @if($feed && $posts->isNotEmpty())
             @php
                 $showAuthor = $feed->displaySetting('show_author', true);
@@ -66,7 +66,7 @@
                                     <img src="{{ $post->author_avatar_url }}" alt="" class="w-8 h-8 rounded-full">
                                 @else
                                     <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                        <x-heroicon-s-user class="w-4 h-4 text-gray-400" />
+                                        @svg('fal-user', ['class' => 'w-4 h-4 text-gray-400'])
                                     </div>
                                 @endif
                                 <div>
@@ -134,7 +134,7 @@
             </div>
         @elseif($feed)
             <div class="text-sm text-gray-500 dark:text-gray-400 py-8 text-center">
-                <x-heroicon-o-inbox class="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+                @svg('fal-inbox', ['class' => 'w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600'])
                 <p>Zatím žádné příspěvky.</p>
                 <p class="text-xs mt-1">Klikněte na „Obnovit" pro načtení dat z API.</p>
             </div>

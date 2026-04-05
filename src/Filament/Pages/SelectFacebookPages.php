@@ -20,7 +20,7 @@ class SelectFacebookPages extends Page
 {
     protected string $view = 'social-feeds::filament.pages.select-facebook-pages';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-check-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'fal-circle-check';
 
     protected static ?string $title = 'Výběr Facebook stránek';
 
@@ -58,7 +58,7 @@ class SelectFacebookPages extends Page
         return $schema->components([
             Section::make('Vyberte stránky k propojení')
                 ->description('Vyberte jednu nebo více Facebook stránek, které chcete připojit k miPress.')
-                ->icon('heroicon-o-check-circle')
+                ->icon('fal-circle-check')
                 ->schema([
                     CheckboxList::make('selectedPages')
                         ->label('')
@@ -74,7 +74,7 @@ class SelectFacebookPages extends Page
         return [
             Action::make('connect')
                 ->label('Připojit vybrané stránky')
-                ->icon('heroicon-o-link')
+                ->icon('fal-link')
                 ->action(fn () => $this->connectSelected())
                 ->requiresConfirmation()
                 ->modalHeading('Potvrzení připojení')
@@ -83,7 +83,7 @@ class SelectFacebookPages extends Page
 
             Action::make('cancel')
                 ->label('Zrušit')
-                ->icon('heroicon-o-x-mark')
+                ->icon('fal-xmark')
                 ->url(route('filament.admin.resources.social-accounts.index'))
                 ->color('gray'),
         ];

@@ -24,7 +24,7 @@ class EditSocialFeed extends EditRecord
         return [
             Action::make('refresh')
                 ->label('Obnovit feed')
-                ->icon('heroicon-o-arrow-path')
+                ->icon('fal-arrows-rotate')
                 ->action(function () {
                     RefreshFeedJob::dispatchSync($this->record->id);
                     Notification::make()

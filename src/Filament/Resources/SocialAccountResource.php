@@ -133,7 +133,7 @@ class SocialAccountResource extends Resource
             ->actions([
                 Action::make('verify')
                     ->label('Ověřit token')
-                    ->icon('heroicon-o-shield-check')
+                    ->icon('fal-shield-check')
                     ->action(function (SocialAccount $record) {
                         $manager = app(SocialFeedManager::class);
                         $provider = $manager->resolve($record->platform);

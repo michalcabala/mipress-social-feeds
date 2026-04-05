@@ -23,7 +23,7 @@
                 <img src="{{ $account->avatar_url }}" alt="{{ $account->name }}" class="h-12 w-12 rounded-xl object-cover">
             @else
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
-                    <x-heroicon-s-user class="h-5 w-5" />
+                    @svg('fal-user', ['class' => 'h-5 w-5'])
                 </div>
             @endif
 
