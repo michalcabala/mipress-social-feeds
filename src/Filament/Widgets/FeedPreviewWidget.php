@@ -14,8 +14,6 @@ class FeedPreviewWidget extends Widget
 
     public SocialFeed|Model|int|string|null $record = null;
 
-    public ?array $debugInfo = null;
-
     protected int|string|array $columnSpan = 'full';
 
     #[On('feed-updated')]
@@ -35,29 +33,16 @@ class FeedPreviewWidget extends Widget
     {
         $feed = $this->resolveFeed();
 
-        $this->debugInfo = [
-            'record_type' => is_object($this->record) ? $this->record::class : gettype($this->record),
-            'route_record_type' => is_object(request()->route('record')) ? request()->route('record')::class : gettype(request()->route('record')),
-            'resolved_feed_id' => $feed?->getKey(),
-        ];
-
         if (! $feed) {
-            return [
-                'feed' => null,
-                'posts' => collect(),
-                'debugInfo' => $this->debugInfo,
-            ];
+            return ['feed' => null, 'posts' => collect()];
         }
 
         $manager = app(SocialFeedManager::class);
         $posts = $manager->getFeedData($feed);
 
-        $this->debugInfo['posts_count'] = $posts->count();
-
         return [
             'feed' => $feed,
             'posts' => $posts,
-            'debugInfo' => $this->debugInfo,
         ];
     }
 

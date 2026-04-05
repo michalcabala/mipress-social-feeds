@@ -71,7 +71,17 @@ class SocialFeed extends Model
             'columns' => 3,
         ];
 
-        return data_get($this->settings, $key, $default ?? ($defaults[$key] ?? null));
+        $resolvedDefault = $default ?? ($defaults[$key] ?? null);
+        $value = data_get($this->settings, $key, $resolvedDefault);
+
+        return match ($key) {
+            'show_author', 'show_engagement', 'show_permalink' => (bool) $value,
+            'content_length' => max(50, (int) $value),
+            'per_page' => max(1, (int) $value),
+            'columns' => min(6, max(1, (int) $value)),
+            'pagination_type' => in_array($value, ['none', 'load_more'], true) ? $value : 'none',
+            default => $value,
+        };
     }
 
     public function filterSetting(string $key, mixed $default = null): mixed
