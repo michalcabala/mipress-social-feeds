@@ -5,23 +5,28 @@
     $platform = $feed->account->platform;
     $contentLength = $feed->displaySetting('content_length', 300);
     $isAlbum = (($post->post_type ?? '') === 'album') || count($media) > 1;
+    $showAuthor = $feed->displaySetting('show_author', true);
+    $showPostedAt = $feed->displaySetting('show_posted_at', true);
 @endphp
 
 <article class="sf-post sf-post--{{ $post->post_type ?? 'text' }}">
     {{-- Header (název stránky / autor) --}}
-    @if($feed->displaySetting('show_author') && ($post->author_name ?? false))
+    @if($showAuthor && ($post->author_name ?? false))
     <div class="sf-post__header flex items-center gap-3 mb-2">
         @if($post->author_avatar_url ?? false)
             <img src="{{ $post->author_avatar_url }}" alt="" class="w-10 h-10 rounded-full">
         @endif
         <div>
             <div class="font-semibold text-sm">{{ $post->author_name }}</div>
-            @if($post->posted_at ?? false)
-                <time class="text-xs text-gray-500" datetime="{{ $post->posted_at }}">
-                    {{ \Carbon\Carbon::parse($post->posted_at)->diffForHumans() }}
-                </time>
-            @endif
         </div>
+    </div>
+    @endif
+
+    @if($showPostedAt && ($post->posted_at ?? false))
+    <div class="mb-2">
+        <time class="text-xs text-gray-500" datetime="{{ $post->posted_at }}">
+            {{ \Carbon\Carbon::parse($post->posted_at)->diffForHumans() }}
+        </time>
     </div>
     @endif
 

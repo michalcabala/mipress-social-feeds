@@ -116,6 +116,11 @@ class SocialFeedResource extends Resource
                         ->helperText('Název a avatar autora u každého příspěvku')
                         ->default(true),
 
+                    Forms\Components\Toggle::make('settings.show_posted_at')
+                        ->label('Zobrazit datum příspěvku')
+                        ->helperText('Relativní čas publikace (např. před 2 hodinami)')
+                        ->default(true),
+
                     Forms\Components\Toggle::make('settings.show_engagement')
                         ->label('Zobrazit reakce a komentáře')
                         ->helperText('Počet reakcí, komentářů a sdílení')

@@ -3,6 +3,7 @@
         @if($feed && $posts->isNotEmpty())
             @php
                 $showAuthor = $feed->displaySetting('show_author', true);
+                $showPostedAt = $feed->displaySetting('show_posted_at', true);
                 $showEngagement = $feed->displaySetting('show_engagement', true);
                 $showPermalink = $feed->displaySetting('show_permalink', true);
                 $contentLength = (int) $feed->displaySetting('content_length', 300);
@@ -30,6 +31,9 @@
                 <div class="mb-3 flex flex-wrap gap-1.5">
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium {{ $showAuthor ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500 line-through' }}">
                         Autor
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium {{ $showPostedAt ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500 line-through' }}">
+                        Datum
                     </span>
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium {{ $showEngagement ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500 line-through' }}">
                         Reakce
@@ -67,11 +71,14 @@
                                 @endif
                                 <div>
                                     <div class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ $post->author_name ?? $accountName }}</div>
-                                    @if($post->posted_at ?? false)
-                                        <time class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($post->posted_at)->diffForHumans() }}</time>
-                                    @endif
                                 </div>
                             </div>
+                            @endif
+
+                            @if($showPostedAt && ($post->posted_at ?? false))
+                                <div class="mb-2">
+                                    <time class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($post->posted_at)->diffForHumans() }}</time>
+                                </div>
                             @endif
 
                             {{-- Content --}}
