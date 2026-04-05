@@ -60,6 +60,20 @@ class FeedPreviewWidget extends Widget
             return SocialFeed::query()->find((int) $this->record);
         }
 
+        $routeRecord = request()->route('record');
+
+        if ($routeRecord instanceof SocialFeed) {
+            return $routeRecord;
+        }
+
+        if ($routeRecord instanceof Model && $routeRecord->getKey()) {
+            return SocialFeed::query()->find($routeRecord->getKey());
+        }
+
+        if (is_numeric($routeRecord)) {
+            return SocialFeed::query()->find((int) $routeRecord);
+        }
+
         return null;
     }
 }

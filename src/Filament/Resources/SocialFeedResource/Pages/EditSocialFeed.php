@@ -41,7 +41,9 @@ class EditSocialFeed extends EditRecord
     protected function getFooterWidgets(): array
     {
         return [
-            FeedPreviewWidget::class,
+            FeedPreviewWidget::make([
+                'record' => $this->getRecord(),
+            ]),
         ];
     }
 }
