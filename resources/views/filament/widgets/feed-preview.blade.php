@@ -9,9 +9,11 @@
                 $paginationType = $feed->displaySetting('pagination_type', 'none');
                 $perPage = (int) $feed->displaySetting('per_page', 5);
                 $previewPosts = $paginationType === 'none' ? $posts : $posts->take($perPage);
+                $accountName = $feed->account?->name ?? 'Neznamy ucet';
+                $platformLabel = $feed->account?->platform?->label() ?? 'socialni siti';
             @endphp
 
-            <div class="sf-preview rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 overflow-auto max-h-[600px]">
+            <div class="sf-preview rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 overflow-auto max-h-150">
                 <div class="mb-3 flex items-center justify-between">
                     <span class="text-xs text-gray-500 dark:text-gray-400">
                         Layout: <strong>{{ $feed->layout->label() }}</strong> · {{ $posts->count() }} příspěvků
@@ -64,7 +66,7 @@
                                     </div>
                                 @endif
                                 <div>
-                                    <div class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ $post->author_name ?? $feed->account->name }}</div>
+                                    <div class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ $post->author_name ?? $accountName }}</div>
                                     @if($post->posted_at ?? false)
                                         <time class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($post->posted_at)->diffForHumans() }}</time>
                                     @endif
@@ -107,7 +109,7 @@
                             {{-- Permalink --}}
                             @if($showPermalink && ($post->permalink ?? false))
                                 <a href="{{ $post->permalink }}" target="_blank" rel="noopener" class="text-xs text-primary-600 hover:underline mt-1 inline-block">
-                                    Zobrazit na {{ $feed->account->platform->label() }} →
+                                    Zobrazit na {{ $platformLabel }} →
                                 </a>
                             @endif
                         </div>

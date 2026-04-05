@@ -106,9 +106,10 @@ class SocialFeedManager
 
         // Skrýt nedostupné příspěvky (bez textu i bez médií)
         if ($feed->filterSetting('hide_unavailable')) {
-            $filtered = $filtered->filter(function (array $post) {
-                $hasContent = ! empty($post['content']);
-                $hasMedia = ! empty($post['media']) && $post['media'] !== '[]';
+            $filtered = $filtered->filter(function (mixed $post) {
+                $postData = $this->normalizePost($post);
+                $hasContent = ! empty($postData['content']);
+                $hasMedia = ! empty($postData['media']) && $postData['media'] !== '[]';
 
                 return $hasContent || $hasMedia;
             });
@@ -117,8 +118,9 @@ class SocialFeedManager
         // Minimální počet interakcí
         $minEngagement = (int) $feed->filterSetting('min_engagement', 0);
         if ($minEngagement > 0) {
-            $filtered = $filtered->filter(function (array $post) use ($minEngagement) {
-                $engagement = is_array($post['engagement'] ?? null) ? $post['engagement'] : [];
+            $filtered = $filtered->filter(function (mixed $post) use ($minEngagement) {
+                $postData = $this->normalizePost($post);
+                $engagement = is_array($postData['engagement'] ?? null) ? $postData['engagement'] : [];
                 $total = ($engagement['reactions'] ?? $engagement['likes'] ?? 0)
                     + ($engagement['comments'] ?? 0)
                     + ($engagement['shares'] ?? 0);
@@ -130,9 +132,26 @@ class SocialFeedManager
         // Vyloučit typy příspěvků
         $excludeTypes = $feed->filterSetting('exclude_types', []);
         if (! empty($excludeTypes)) {
-            $filtered = $filtered->reject(fn (array $post) => in_array($post['post_type'] ?? '', $excludeTypes, true));
+            $filtered = $filtered->reject(function (mixed $post) use ($excludeTypes): bool {
+                $postData = $this->normalizePost($post);
+
+                return in_array($postData['post_type'] ?? '', $excludeTypes, true);
+            });
         }
 
         return $filtered->values();
+    }
+
+    private function normalizePost(mixed $post): array
+    {
+        if (is_array($post)) {
+            return $post;
+        }
+
+        if (is_object($post)) {
+            return (array) $post;
+        }
+
+        return [];
     }
 }

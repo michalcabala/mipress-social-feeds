@@ -12,28 +12,54 @@ class FeedPreviewWidget extends Widget
 {
     protected string $view = 'social-feeds::filament.widgets.feed-preview';
 
-    public ?Model $record = null;
+    public SocialFeed|Model|int|string|null $record = null;
 
     protected int|string|array $columnSpan = 'full';
 
     #[On('feed-updated')]
     public function refreshPreview(): void
     {
-        $this->record?->refresh();
+        $feed = $this->resolveFeed();
+
+        if (! $feed) {
+            return;
+        }
+
+        $feed->refresh();
+        $this->record = $feed;
     }
 
     protected function getViewData(): array
     {
-        if (! $this->record instanceof SocialFeed) {
+        $feed = $this->resolveFeed();
+
+        if (! $feed) {
             return ['feed' => null, 'posts' => collect()];
         }
 
         $manager = app(SocialFeedManager::class);
-        $posts = $manager->getFeedData($this->record);
+        $posts = $manager->getFeedData($feed);
 
         return [
-            'feed' => $this->record,
+            'feed' => $feed,
             'posts' => $posts,
         ];
+    }
+
+    private function resolveFeed(): ?SocialFeed
+    {
+        if ($this->record instanceof SocialFeed) {
+            return $this->record;
+        }
+
+        if ($this->record instanceof Model && $this->record->getKey()) {
+            return SocialFeed::query()->find($this->record->getKey());
+        }
+
+        if (is_numeric($this->record)) {
+            return SocialFeed::query()->find((int) $this->record);
+        }
+
+        return null;
     }
 }
