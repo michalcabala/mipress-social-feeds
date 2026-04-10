@@ -6,6 +6,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -64,9 +65,9 @@ class SocialAccountResource extends Resource
 
             Section::make('Stav tokenu')
                 ->schema([
-                    Forms\Components\Placeholder::make('token_status')
+                    TextEntry::make('token_status')
                         ->label('Stav')
-                        ->content(function (?SocialAccount $record) {
+                        ->state(function (?SocialAccount $record) {
                             if (! $record) {
                                 return '—';
                             }
@@ -80,13 +81,13 @@ class SocialAccountResource extends Resource
                             return '✅ Token platný';
                         }),
 
-                    Forms\Components\Placeholder::make('token_expires_at')
+                    TextEntry::make('token_expires_at')
                         ->label('Vyprší')
-                        ->content(fn (?SocialAccount $record) => $record?->token_expires_at?->format('d.m.Y H:i') ?? 'Bez expirace'),
+                        ->state(fn (?SocialAccount $record) => $record?->token_expires_at?->format('d.m.Y H:i') ?? 'Bez expirace'),
 
-                    Forms\Components\Placeholder::make('last_verified_at')
+                    TextEntry::make('last_verified_at')
                         ->label('Poslední ověření')
-                        ->content(fn (?SocialAccount $record) => $record?->last_verified_at?->diffForHumans() ?? 'Neověřeno'),
+                        ->state(fn (?SocialAccount $record) => $record?->last_verified_at?->diffForHumans() ?? 'Neověřeno'),
                 ])->columns(3),
         ]);
     }

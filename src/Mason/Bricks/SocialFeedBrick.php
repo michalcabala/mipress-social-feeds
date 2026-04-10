@@ -31,13 +31,13 @@ class SocialFeedBrick extends Brick
 
     public static function toHtml(array $config, ?array $data = null): ?string
     {
-        $feed = null;
+        $feedQuery = SocialFeed::query()->with('account');
 
-        if (! empty($config['feed_id'])) {
-            $feed = SocialFeed::find($config['feed_id']);
-        } elseif (! empty($config['feed_slug'])) {
-            $feed = SocialFeed::where('slug', $config['feed_slug'])->first();
-        }
+        $feed = match (true) {
+            ! empty($config['feed_id']) => $feedQuery->whereKey($config['feed_id'])->first(),
+            ! empty($config['feed_slug']) => $feedQuery->where('slug', $config['feed_slug'])->first(),
+            default => null,
+        };
 
         if (! $feed) {
             return null;
@@ -73,9 +73,10 @@ class SocialFeedBrick extends Brick
                 Select::make('feed_id')
                     ->label('Feed')
                     ->options(fn (): array => SocialFeed::query()
-                        ->where('is_active', true)
+                        ->with(['account:id,name'])
+                        ->active()
                         ->orderBy('name')
-                        ->get()
+                        ->get(['id', 'name', 'social_account_id'])
                         ->mapWithKeys(fn (SocialFeed $feed) => [
                             $feed->id => "{$feed->name} ({$feed->account?->name})",
                         ])
