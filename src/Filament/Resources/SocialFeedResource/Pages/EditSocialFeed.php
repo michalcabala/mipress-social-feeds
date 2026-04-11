@@ -6,12 +6,15 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use MiPress\SocialFeeds\Filament\Concerns\HasContextualCrudNotifications;
 use MiPress\SocialFeeds\Filament\Resources\SocialFeedResource;
 use MiPress\SocialFeeds\Filament\Widgets\FeedPreviewWidget;
 use MiPress\SocialFeeds\Jobs\RefreshFeedJob;
 
 class EditSocialFeed extends EditRecord
 {
+    use HasContextualCrudNotifications;
+
     protected static string $resource = SocialFeedResource::class;
 
     protected function afterSave(): void
@@ -29,6 +32,7 @@ class EditSocialFeed extends EditRecord
                     RefreshFeedJob::dispatchSync($this->record->id);
                     Notification::make()
                         ->title('Feed byl obnoven')
+                        ->body('Feed "'.$this->record->name.'" byl úspěšně synchronizován.')
                         ->success()
                         ->send();
 

@@ -143,11 +143,13 @@ class SocialAccountResource extends Resource
                         if ($valid) {
                             Notification::make()
                                 ->title('Token je platný')
+                                ->body('Přístupový token účtu "'.$record->name.'" je stále platný.')
                                 ->success()
                                 ->send();
                         } else {
                             Notification::make()
-                                ->title('Token je neplatný — připojte účet znovu')
+                                ->title('Token je neplatný')
+                                ->body('Účet "'.$record->name.'" je potřeba znovu připojit, protože token už není platný.')
                                 ->danger()
                                 ->send();
                         }

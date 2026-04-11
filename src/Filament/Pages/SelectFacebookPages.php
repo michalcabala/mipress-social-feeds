@@ -43,7 +43,7 @@ class SelectFacebookPages extends Page
         if (empty($pages)) {
             Notification::make()
                 ->title('Žádné stránky k výběru')
-                ->body('Nejprve připojte Facebook účet.')
+                ->body('Nejprve připojte Facebook účet a načtěte stránky, které chcete propojit.')
                 ->warning()
                 ->send();
 
@@ -82,8 +82,10 @@ class SelectFacebookPages extends Page
                 ->icon('fal-link')
                 ->action(fn () => $this->connectSelected())
                 ->requiresConfirmation()
-                ->modalHeading('Potvrzení připojení')
-                ->modalDescription('Opravdu chcete připojit vybrané Facebook stránky?')
+                ->modalHeading('Připojit vybrané Facebook stránky?')
+                ->modalDescription(fn (): string => empty($this->selectedPages)
+                    ? 'Vyberte alespoň jednu Facebook stránku, kterou chcete propojit.'
+                    : 'Bude propojeno '.count($this->selectedPages).' vybraných Facebook stránek.')
                 ->color('primary'),
 
             Action::make('cancel')
@@ -99,6 +101,7 @@ class SelectFacebookPages extends Page
         if (empty($this->selectedPages)) {
             Notification::make()
                 ->title('Nevybrali jste žádné stránky')
+                ->body('Před propojením označte alespoň jednu Facebook stránku.')
                 ->warning()
                 ->send();
 
@@ -170,6 +173,7 @@ class SelectFacebookPages extends Page
 
         Notification::make()
             ->title("Úspěšně propojeno {$count} ".($count === 1 ? 'stránka' : 'stránek'))
+            ->body('Vybrané Facebook stránky byly přidány mezi sociální účty.')
             ->success()
             ->send();
 

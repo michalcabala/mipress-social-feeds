@@ -10,6 +10,11 @@ class ListSocialFeeds extends ListRecords
 {
     protected static string $resource = SocialFeedResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

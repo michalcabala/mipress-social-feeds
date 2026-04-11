@@ -11,6 +11,11 @@ class ListSocialAccounts extends ListRecords
 {
     protected static string $resource = SocialAccountResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return collect(SocialPlatform::enabled())->map(
