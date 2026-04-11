@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
+use Laravel\Socialite\Two\User as SocialiteUser;
 use MiPress\SocialFeeds\Enums\SocialPlatform;
 use MiPress\SocialFeeds\Models\SocialAccount;
 use MiPress\SocialFeeds\Providers\FacebookProvider;
@@ -18,6 +20,8 @@ class SocialAuthController extends Controller
 {
     public function redirect(string $platform)
     {
+        $this->ensureCanConnectSocialAccounts();
+
         $enum = SocialPlatform::tryFrom($platform);
 
         if (! $enum || ! in_array($enum, SocialPlatform::enabled())) {
@@ -29,7 +33,7 @@ class SocialAuthController extends Controller
 
         $driver = Socialite::driver($platform);
 
-        if ((bool) config("social-feeds.providers.{$platform}.stateless", false)) {
+        if ((bool) config("social-feeds.providers.{$platform}.stateless", false) && $driver instanceof AbstractProvider) {
             $driver = $driver->stateless();
         }
 
@@ -40,6 +44,8 @@ class SocialAuthController extends Controller
 
     public function callback(string $platform, Request $request)
     {
+        $this->ensureCanConnectSocialAccounts();
+
         $enum = SocialPlatform::tryFrom($platform);
 
         if (! $enum) {
@@ -49,10 +55,11 @@ class SocialAuthController extends Controller
         try {
             $driver = Socialite::driver($platform);
 
-            if ((bool) config("social-feeds.providers.{$platform}.stateless", false)) {
+            if ((bool) config("social-feeds.providers.{$platform}.stateless", false) && $driver instanceof AbstractProvider) {
                 $driver = $driver->stateless();
             }
 
+            /** @var SocialiteUser $socialiteUser */
             $socialiteUser = $driver->user();
         } catch (Throwable $e) {
             Log::error('Social OAuth callback failed.', [
@@ -103,7 +110,7 @@ class SocialAuthController extends Controller
             ->with('success', "{$enum->label()} účet úspěšně propojen.");
     }
 
-    private function handleFacebookPages(mixed $socialiteUser, SocialPlatform $enum)
+    private function handleFacebookPages(SocialiteUser $socialiteUser, SocialPlatform $enum)
     {
         $userToken = $socialiteUser->token;
         $version = config('social-feeds.providers.facebook.graph_version', 'v23.0');
@@ -169,5 +176,12 @@ class SocialAuthController extends Controller
             SocialPlatform::Facebook => FacebookProvider::class,
             default => throw new \InvalidArgumentException('Provider nenalezen.'),
         };
+    }
+
+    private function ensureCanConnectSocialAccounts(): void
+    {
+        if (auth()->user()?->hasPermissionTo('social_account.create') !== true) {
+            abort(403);
+        }
     }
 }

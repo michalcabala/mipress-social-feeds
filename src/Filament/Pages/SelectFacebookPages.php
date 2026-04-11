@@ -31,6 +31,11 @@ class SelectFacebookPages extends Page
     /** @var array<string> */
     public array $selectedPages = [];
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasPermissionTo('social_account.create') === true;
+    }
+
     public function mount(): void
     {
         $pages = $this->getCachedPages();

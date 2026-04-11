@@ -4,9 +4,14 @@ namespace MiPress\SocialFeeds;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use MiPress\SocialFeeds\Jobs\RefreshAllFeedsJob;
 use MiPress\SocialFeeds\Mason\Bricks\SocialFeedBrick;
+use MiPress\SocialFeeds\Models\SocialAccount;
+use MiPress\SocialFeeds\Models\SocialFeed as SocialFeedModel;
+use MiPress\SocialFeeds\Policies\SocialAccountPolicy;
+use MiPress\SocialFeeds\Policies\SocialFeedPolicy;
 use MiPress\SocialFeeds\Services\SocialFeedManager;
 use MiPress\SocialFeeds\View\Components\SocialFeed;
 
@@ -25,6 +30,9 @@ class SocialFeedsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::policy(SocialAccount::class, SocialAccountPolicy::class);
+        Gate::policy(SocialFeedModel::class, SocialFeedPolicy::class);
+
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
