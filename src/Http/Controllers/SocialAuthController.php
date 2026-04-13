@@ -18,7 +18,7 @@ use Throwable;
 
 class SocialAuthController extends Controller
 {
-    public function redirect(string $platform)
+    public function redirect(string $platform): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $this->ensureCanConnectSocialAccounts();
 
@@ -42,7 +42,7 @@ class SocialAuthController extends Controller
             ->redirect();
     }
 
-    public function callback(string $platform, Request $request)
+    public function callback(string $platform, Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->ensureCanConnectSocialAccounts();
 
@@ -110,7 +110,7 @@ class SocialAuthController extends Controller
             ->with('success', "{$enum->label()} účet úspěšně propojen.");
     }
 
-    private function handleFacebookPages(SocialiteUser $socialiteUser, SocialPlatform $enum)
+    private function handleFacebookPages(SocialiteUser $socialiteUser, SocialPlatform $enum): \Illuminate\Http\RedirectResponse
     {
         $userToken = $socialiteUser->token;
         $version = config('social-feeds.providers.facebook.graph_version', 'v23.0');
