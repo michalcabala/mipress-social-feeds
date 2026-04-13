@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPress\SocialFeeds\Services;
 
 use Illuminate\Support\Collection;

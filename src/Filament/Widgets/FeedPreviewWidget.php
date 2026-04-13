@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPress\SocialFeeds\Filament\Widgets;
 
 use Filament\Widgets\Widget;

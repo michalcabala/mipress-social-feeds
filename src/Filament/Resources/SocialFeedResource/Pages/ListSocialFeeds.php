@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPress\SocialFeeds\Filament\Resources\SocialFeedResource\Pages;
 
 use Filament\Actions\CreateAction;

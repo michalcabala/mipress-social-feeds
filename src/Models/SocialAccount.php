@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPress\SocialFeeds\Models;
 
 use App\Models\User;
