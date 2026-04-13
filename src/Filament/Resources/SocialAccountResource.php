@@ -3,6 +3,7 @@
 namespace MiPress\SocialFeeds\Filament\Resources;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
@@ -132,31 +133,33 @@ class SocialAccountResource extends Resource
                     ->sortable(),
             ])
             ->actions([
-                Action::make('verify')
-                    ->label('Ověřit token')
-                    ->icon('fal-shield-check')
-                    ->action(function (SocialAccount $record) {
-                        $manager = app(SocialFeedManager::class);
-                        $provider = $manager->resolve($record->platform);
-                        $valid = $provider->validateToken($record);
+                ActionGroup::make([
+                    Action::make('verify')
+                        ->label('Ověřit token')
+                        ->icon('fal-shield-check')
+                        ->action(function (SocialAccount $record) {
+                            $manager = app(SocialFeedManager::class);
+                            $provider = $manager->resolve($record->platform);
+                            $valid = $provider->validateToken($record);
 
-                        if ($valid) {
-                            Notification::make()
-                                ->title('Token je platný')
-                                ->body('Přístupový token účtu "'.$record->name.'" je stále platný.')
-                                ->success()
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->title('Token je neplatný')
-                                ->body('Účet "'.$record->name.'" je potřeba znovu připojit, protože token už není platný.')
-                                ->danger()
-                                ->send();
-                        }
-                    }),
-                EditAction::make(),
-                DeleteAction::make()
-                    ->label('Odpojit'),
+                            if ($valid) {
+                                Notification::make()
+                                    ->title('Token je platný')
+                                    ->body('Přístupový token účtu "'.$record->name.'" je stále platný.')
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Token je neplatný')
+                                    ->body('Účet "'.$record->name.'" je potřeba znovu připojit, protože token už není platný.')
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
+                    EditAction::make(),
+                    DeleteAction::make()
+                        ->label('Odpojit'),
+                ]),
             ]);
     }
 

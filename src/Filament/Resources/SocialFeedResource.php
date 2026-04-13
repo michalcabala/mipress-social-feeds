@@ -3,7 +3,9 @@
 namespace MiPress\SocialFeeds\Filament\Resources;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -235,33 +237,37 @@ class SocialFeedResource extends Resource
                     ->sortable(),
             ])
             ->actions([
-                Action::make('refresh')
-                    ->label('Obnovit')
-                    ->icon('fal-arrows-rotate')
-                    ->action(function (SocialFeed $record) {
-                        RefreshFeedJob::dispatch($record->id);
-                        Notification::make()
-                            ->title('Obnovení feedu bylo zařazeno do fronty')
-                            ->body('Feed "'.$record->name.'" se obnoví na pozadí.')
-                            ->success()
-                            ->send();
-                    }),
-                EditAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    Action::make('refresh')
+                        ->label('Obnovit')
+                        ->icon('fal-arrows-rotate')
+                        ->action(function (SocialFeed $record) {
+                            RefreshFeedJob::dispatch($record->id);
+                            Notification::make()
+                                ->title('Obnovení feedu bylo zařazeno do fronty')
+                                ->body('Feed "'.$record->name.'" se obnoví na pozadí.')
+                                ->success()
+                                ->send();
+                        }),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
-                BulkAction::make('refresh_all')
-                    ->label('Obnovit vybrané')
-                    ->icon('fal-arrows-rotate')
-                    ->action(function (Collection $records) {
-                        $records->each(fn (SocialFeed $feed) => RefreshFeedJob::dispatch($feed->id));
-                        Notification::make()
-                            ->title('Obnovení vybraných feedů bylo zařazeno do fronty')
-                            ->body('Na pozadí bude obnoveno '.$records->count().' vybraných feedů.')
-                            ->success()
-                            ->send();
-                    }),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    BulkAction::make('refresh_all')
+                        ->label('Obnovit vybrané')
+                        ->icon('fal-arrows-rotate')
+                        ->action(function (Collection $records) {
+                            $records->each(fn (SocialFeed $feed) => RefreshFeedJob::dispatch($feed->id));
+                            Notification::make()
+                                ->title('Obnovení vybraných feedů bylo zařazeno do fronty')
+                                ->body('Na pozadí bude obnoveno '.$records->count().' vybraných feedů.')
+                                ->success()
+                                ->send();
+                        }),
+                ]),
             ]);
     }
 
