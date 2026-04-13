@@ -6,6 +6,7 @@ namespace MiPress\SocialFeeds\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use MiPress\SocialFeeds\Contracts\SocialProvider;
 use MiPress\SocialFeeds\Enums\SocialPlatform;
 use MiPress\SocialFeeds\Models\SocialAccount;
@@ -248,8 +249,12 @@ class SocialFeedManager
                     'cover_url' => data_get($profile, 'cover.source', data_get($meta, 'cover_url')),
                 ],
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Feed rendering should not fail when profile metadata cannot be refreshed.
+            Log::warning('Social feed profile metadata refresh failed.', [
+                'account_id' => $account->id,
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }

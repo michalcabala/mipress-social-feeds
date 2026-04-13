@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 use MiPress\SocialFeeds\Enums\SocialPlatform;
 use MiPress\SocialFeeds\Models\SocialAccount;
 use MiPress\SocialFeeds\Services\SocialFeedManager;
@@ -162,8 +163,12 @@ class SelectFacebookPages extends Page
                         ],
                     ]);
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // The page connection should succeed even if profile enrichment fails.
+                Log::warning('Facebook page profile enrichment failed.', [
+                    'account_id' => $account->id ?? null,
+                    'message' => $e->getMessage(),
+                ]);
             }
             $count++;
         }
