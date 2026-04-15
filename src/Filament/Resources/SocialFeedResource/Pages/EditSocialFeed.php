@@ -28,13 +28,13 @@ class EditSocialFeed extends EditRecord
     {
         return [
             Action::make('refresh')
-                ->label('Obnovit feed')
+                ->label(__('social-feeds::admin.resources.social_feed.actions.refresh_now.label'))
                 ->icon('fal-arrows-rotate')
                 ->action(function () {
                     RefreshFeedJob::dispatchSync($this->record->id);
                     Notification::make()
-                        ->title('Feed byl obnoven')
-                        ->body('Feed "'.$this->record->name.'" byl úspěšně synchronizován.')
+                        ->title(__('social-feeds::admin.resources.social_feed.actions.refresh_now.success_title'))
+                        ->body(__('social-feeds::admin.resources.social_feed.actions.refresh_now.success_body', ['name' => $this->record->name]))
                         ->success()
                         ->send();
 

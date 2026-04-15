@@ -32,6 +32,7 @@ class SocialFeedsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'social-feeds');
         Gate::policy(SocialAccount::class, SocialAccountPolicy::class);
         Gate::policy(SocialFeedModel::class, SocialFeedPolicy::class);
 

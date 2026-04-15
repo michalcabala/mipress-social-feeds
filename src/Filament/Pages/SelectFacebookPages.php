@@ -23,7 +23,7 @@ class SelectFacebookPages extends Page
 
     protected static string|\BackedEnum|null $navigationIcon = 'fal-circle-check';
 
-    protected static ?string $title = 'Výběr Facebook stránek';
+    protected static ?string $title = null;
 
     protected static ?string $slug = 'select-facebook-pages';
 
@@ -31,6 +31,11 @@ class SelectFacebookPages extends Page
 
     /** @var array<string> */
     public array $selectedPages = [];
+
+    public function getTitle(): string
+    {
+        return __('social-feeds::admin.pages.select_facebook_pages.title');
+    }
 
     public static function canAccess(): bool
     {
@@ -43,8 +48,8 @@ class SelectFacebookPages extends Page
 
         if (empty($pages)) {
             Notification::make()
-                ->title('Žádné stránky k výběru')
-                ->body('Nejprve připojte Facebook účet a načtěte stránky, které chcete propojit.')
+                ->title(__('social-feeds::admin.pages.select_facebook_pages.notifications.no_pages.title'))
+                ->body(__('social-feeds::admin.pages.select_facebook_pages.notifications.no_pages.body'))
                 ->warning()
                 ->send();
 
@@ -62,8 +67,8 @@ class SelectFacebookPages extends Page
         ])->all();
 
         return $schema->components([
-            Section::make('Vyberte stránky k propojení')
-                ->description('Vyberte jednu nebo více Facebook stránek, které chcete připojit k miPress.')
+            Section::make(__('social-feeds::admin.pages.select_facebook_pages.section'))
+                ->description(__('social-feeds::admin.pages.select_facebook_pages.description'))
                 ->icon('fal-circle-check')
                 ->schema([
                     CheckboxList::make('selectedPages')
@@ -79,18 +84,18 @@ class SelectFacebookPages extends Page
     {
         return [
             Action::make('connect')
-                ->label('Připojit vybrané stránky')
+                ->label(__('social-feeds::admin.pages.select_facebook_pages.actions.connect.label'))
                 ->icon('fal-link')
                 ->action(fn () => $this->connectSelected())
                 ->requiresConfirmation()
-                ->modalHeading('Připojit vybrané Facebook stránky?')
+                ->modalHeading(__('social-feeds::admin.pages.select_facebook_pages.actions.connect.modal_heading'))
                 ->modalDescription(fn (): string => empty($this->selectedPages)
-                    ? 'Vyberte alespoň jednu Facebook stránku, kterou chcete propojit.'
-                    : 'Bude propojeno '.count($this->selectedPages).' vybraných Facebook stránek.')
+                    ? __('social-feeds::admin.pages.select_facebook_pages.actions.connect.modal_description_empty')
+                    : __('social-feeds::admin.pages.select_facebook_pages.actions.connect.modal_description_count', ['count' => count($this->selectedPages)]))
                 ->color('primary'),
 
             Action::make('cancel')
-                ->label('Zrušit')
+                ->label(__('social-feeds::admin.pages.select_facebook_pages.actions.cancel'))
                 ->icon('fal-xmark')
                 ->url(route('filament.admin.resources.social-accounts.index'))
                 ->color('gray'),
@@ -101,8 +106,8 @@ class SelectFacebookPages extends Page
     {
         if (empty($this->selectedPages)) {
             Notification::make()
-                ->title('Nevybrali jste žádné stránky')
-                ->body('Před propojením označte alespoň jednu Facebook stránku.')
+                ->title(__('social-feeds::admin.pages.select_facebook_pages.notifications.none_selected.title'))
+                ->body(__('social-feeds::admin.pages.select_facebook_pages.notifications.none_selected.body'))
                 ->warning()
                 ->send();
 
@@ -177,8 +182,10 @@ class SelectFacebookPages extends Page
         Cache::forget($this->getCacheKey());
 
         Notification::make()
-            ->title("Úspěšně propojeno {$count} ".($count === 1 ? 'stránka' : 'stránek'))
-            ->body('Vybrané Facebook stránky byly přidány mezi sociální účty.')
+            ->title($count === 1
+                ? __('social-feeds::admin.pages.select_facebook_pages.notifications.connected.success_title_one', ['count' => $count])
+                : __('social-feeds::admin.pages.select_facebook_pages.notifications.connected.success_title_other', ['count' => $count]))
+            ->body(__('social-feeds::admin.pages.select_facebook_pages.notifications.connected.success_body'))
             ->success()
             ->send();
 
@@ -210,7 +217,7 @@ class SelectFacebookPages extends Page
             ->exists();
 
         if ($existing) {
-            $label .= ' ✓ již propojeno';
+            $label .= ' '.__('social-feeds::admin.pages.select_facebook_pages.labels.already_connected_suffix');
         }
 
         return $label;

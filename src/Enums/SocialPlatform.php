@@ -15,11 +15,11 @@ enum SocialPlatform: string
     public function label(): string
     {
         return match ($this) {
-            self::Facebook => 'Facebook',
-            self::Instagram => 'Instagram',
-            self::X => 'X (Twitter)',
-            self::YouTube => 'YouTube',
-            self::TikTok => 'TikTok',
+            self::Facebook => __('social-feeds::admin.enums.social_platform.facebook'),
+            self::Instagram => __('social-feeds::admin.enums.social_platform.instagram'),
+            self::X => __('social-feeds::admin.enums.social_platform.x'),
+            self::YouTube => __('social-feeds::admin.enums.social_platform.youtube'),
+            self::TikTok => __('social-feeds::admin.enums.social_platform.tiktok'),
         };
     }
 

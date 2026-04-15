@@ -14,10 +14,10 @@ enum FeedLayout: string
     public function label(): string
     {
         return match ($this) {
-            self::List => 'Seznam',
-            self::Grid => 'Mřížka',
-            self::Masonry => 'Masonry',
-            self::Carousel => 'Karusel',
+            self::List => __('social-feeds::admin.enums.feed_layout.list'),
+            self::Grid => __('social-feeds::admin.enums.feed_layout.grid'),
+            self::Masonry => __('social-feeds::admin.enums.feed_layout.masonry'),
+            self::Carousel => __('social-feeds::admin.enums.feed_layout.carousel'),
         };
     }
 }

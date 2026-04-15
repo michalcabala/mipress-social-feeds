@@ -14,7 +14,7 @@ trait HasContextualCrudNotifications
     {
         return Notification::make()
             ->success()
-            ->title('Záznam byl vytvořen')
+            ->title(__('social-feeds::admin.crud.created'))
             ->body($this->getContextualCrudNotificationBody());
     }
 
@@ -22,7 +22,7 @@ trait HasContextualCrudNotifications
     {
         return Notification::make()
             ->success()
-            ->title('Změny byly uloženy')
+            ->title(__('social-feeds::admin.crud.saved'))
             ->body($this->getContextualCrudNotificationBody());
     }
 

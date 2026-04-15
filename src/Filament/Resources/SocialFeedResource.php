@@ -34,35 +34,55 @@ class SocialFeedResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'fal-rss';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Sociální sítě';
+    protected static string|\UnitEnum|null $navigationGroup = null;
 
-    protected static ?string $navigationLabel = 'Feedy';
+    protected static ?string $navigationLabel = null;
 
-    protected static ?string $modelLabel = 'Feed';
+    protected static ?string $modelLabel = null;
 
-    protected static ?string $pluralModelLabel = 'Feedy';
+    protected static ?string $pluralModelLabel = null;
 
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('social-feeds::admin.resources.social_feed.navigation_group');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('social-feeds::admin.resources.social_feed.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('social-feeds::admin.resources.social_feed.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('social-feeds::admin.resources.social_feed.plural_model_label');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Section::make('Základní nastavení')
+            Section::make(__('social-feeds::admin.resources.social_feed.sections.basic_settings'))
                 ->schema([
                     Forms\Components\TextInput::make('name')
-                        ->label('Název feedu')
-                        ->placeholder('např. FB feed v patičce')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.name'))
+                        ->placeholder(__('social-feeds::admin.resources.social_feed.placeholders.name'))
                         ->required()
                         ->maxLength(255),
 
                     Forms\Components\TextInput::make('slug')
-                        ->label('Slug')
-                        ->placeholder('automaticky z názvu')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.slug'))
+                        ->placeholder(__('social-feeds::admin.resources.social_feed.placeholders.slug'))
                         ->unique(ignoreRecord: true)
-                        ->helperText('Použije se v Blade komponentě: <x-social-feed slug="..." />'),
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.slug')),
 
                     Forms\Components\Select::make('social_account_id')
-                        ->label('Propojený účet')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.social_account'))
                         ->options(
                             SocialAccount::all()->mapWithKeys(fn (SocialAccount $a) => [
                                 $a->id => "{$a->platform->label()}: {$a->name}",
@@ -72,19 +92,19 @@ class SocialFeedResource extends Resource
                         ->searchable(),
 
                     Forms\Components\Select::make('feed_type')
-                        ->label('Typ feedu')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.feed_type'))
                         ->options([
-                            'timeline' => 'Časová osa (výchozí)',
-                            'feed' => 'Feed (vč. příspěvků ostatních)',
-                            'visitor_posts' => 'Příspěvky návštěvníků',
+                            'timeline' => __('social-feeds::admin.resources.social_feed.options.feed_type.timeline'),
+                            'feed' => __('social-feeds::admin.resources.social_feed.options.feed_type.feed'),
+                            'visitor_posts' => __('social-feeds::admin.resources.social_feed.options.feed_type.visitor_posts'),
                         ])
                         ->default('timeline'),
                 ])->columns(2),
 
-            Section::make('Zobrazení')
+            Section::make(__('social-feeds::admin.resources.social_feed.sections.display'))
                 ->schema([
                     Forms\Components\Select::make('layout')
-                        ->label('Layout')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.layout'))
                         ->options(
                             collect(FeedLayout::cases())
                                 ->mapWithKeys(fn (FeedLayout $l) => [$l->value => $l->label()])
@@ -94,80 +114,80 @@ class SocialFeedResource extends Resource
                         ->live(),
 
                     Forms\Components\TextInput::make('posts_count')
-                        ->label('Celkový počet příspěvků')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.posts_count'))
                         ->numeric()
                         ->default(10)
                         ->minValue(1)
                         ->maxValue(100)
-                        ->helperText('Kolik příspěvků se stáhne z API / uloží do DB'),
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.posts_count')),
 
                     Forms\Components\TextInput::make('cache_ttl')
-                        ->label('Cache TTL (sekundy)')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.cache_ttl'))
                         ->numeric()
                         ->default(fn () => config('social-feeds.cache.default_ttl', 3600))
-                        ->helperText('3600 = 1 hodina, 86400 = 1 den'),
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.cache_ttl')),
 
                     Forms\Components\Toggle::make('is_active')
-                        ->label('Aktivní')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.is_active'))
                         ->default(true),
                 ])->columns(2),
 
-            Section::make('Nastavení zobrazení')
-                ->description('Ovládá, co se zobrazí u jednotlivých příspěvků a jak se stránkují.')
+            Section::make(__('social-feeds::admin.resources.social_feed.sections.display_settings'))
+                ->description(__('social-feeds::admin.resources.social_feed.descriptions.display_settings'))
                 ->schema([
                     Forms\Components\Toggle::make('settings.show_author')
-                        ->label('Zobrazit název stránky / autora')
-                        ->helperText('Název a avatar autora u každého příspěvku')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.show_author'))
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.show_author'))
                         ->default(true),
 
                     Forms\Components\Toggle::make('settings.show_posted_at')
-                        ->label('Zobrazit datum příspěvku')
-                        ->helperText('Relativní čas publikace (např. před 2 hodinami)')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.show_posted_at'))
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.show_posted_at'))
                         ->default(true),
 
                     Forms\Components\Toggle::make('settings.show_page_widget')
-                        ->label('Zobrazit kartičku stránky nad feedem')
-                        ->helperText('Název stránky, logo/avatar a počet sledujících')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.show_page_widget'))
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.show_page_widget'))
                         ->default(true),
 
                     Forms\Components\Toggle::make('settings.show_engagement')
-                        ->label('Zobrazit reakce a komentáře')
-                        ->helperText('Počet reakcí, komentářů a sdílení')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.show_engagement'))
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.show_engagement'))
                         ->default(true),
 
                     Forms\Components\Toggle::make('settings.show_permalink')
-                        ->label('Zobrazit odkaz na originál')
-                        ->helperText('Odkaz „Zobrazit na Facebooku →"')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.show_permalink'))
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.show_permalink'))
                         ->default(true),
 
                     Forms\Components\TextInput::make('settings.content_length')
-                        ->label('Max. délka textu příspěvku')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.content_length'))
                         ->numeric()
                         ->default(300)
                         ->minValue(50)
                         ->maxValue(2000)
-                        ->helperText('Počet znaků, poté se ořízne'),
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.content_length')),
 
                     Forms\Components\TextInput::make('settings.per_page')
-                        ->label('Příspěvků na stránku')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.per_page'))
                         ->numeric()
                         ->default(5)
                         ->minValue(1)
                         ->maxValue(50)
-                        ->helperText('Kolik příspěvků se zobrazí najednou')
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.per_page'))
                         ->visible(fn (Get $get): bool => ($get('settings.pagination_type') ?? 'none') !== 'none'),
 
                     Forms\Components\Select::make('settings.pagination_type')
-                        ->label('Stránkování')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.pagination_type'))
                         ->options([
-                            'none' => 'Žádné — zobrazit vše',
-                            'load_more' => 'Tlačítko „Načíst více"',
+                            'none' => __('social-feeds::admin.resources.social_feed.options.pagination_type.none'),
+                            'load_more' => __('social-feeds::admin.resources.social_feed.options.pagination_type.load_more'),
                         ])
                         ->default('none')
                         ->live(),
 
                     Forms\Components\TextInput::make('settings.columns')
-                        ->label('Počet sloupců')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.columns'))
                         ->numeric()
                         ->default(3)
                         ->minValue(2)
@@ -175,33 +195,33 @@ class SocialFeedResource extends Resource
                         ->visible(fn (Get $get): bool => in_array($get('layout'), ['grid', 'masonry'])),
                 ])->columns(2),
 
-            Section::make('Filtrování příspěvků')
-                ->description('Automaticky skryje příspěvky, které nesplňují podmínky.')
+            Section::make(__('social-feeds::admin.resources.social_feed.sections.filters'))
+                ->description(__('social-feeds::admin.resources.social_feed.descriptions.filters'))
                 ->schema([
                     Forms\Components\Toggle::make('filter_settings.hide_unavailable')
-                        ->label('Skrýt nedostupné příspěvky')
-                        ->helperText('Příspěvky bez textu i bez médií a příspěvky s attachmentem typu „Obsah teď není dostupný"')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.hide_unavailable'))
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.hide_unavailable'))
                         ->default(true),
 
                     Forms\Components\TextInput::make('filter_settings.min_engagement')
-                        ->label('Minimální počet interakcí')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.min_engagement'))
                         ->numeric()
                         ->default(0)
                         ->minValue(0)
-                        ->helperText('Skryje příspěvky s menším součtem reakcí + komentářů + sdílení'),
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.min_engagement')),
 
                     Forms\Components\Select::make('filter_settings.exclude_types')
-                        ->label('Vyloučit typy příspěvků')
+                        ->label(__('social-feeds::admin.resources.social_feed.fields.exclude_types'))
                         ->multiple()
                         ->options([
-                            'status' => 'Stavové zprávy',
-                            'link' => 'Odkazy',
-                            'photo' => 'Fotky',
-                            'video' => 'Videa',
-                            'event' => 'Události',
-                            'offer' => 'Nabídky',
+                            'status' => __('social-feeds::admin.resources.social_feed.options.exclude_types.status'),
+                            'link' => __('social-feeds::admin.resources.social_feed.options.exclude_types.link'),
+                            'photo' => __('social-feeds::admin.resources.social_feed.options.exclude_types.photo'),
+                            'video' => __('social-feeds::admin.resources.social_feed.options.exclude_types.video'),
+                            'event' => __('social-feeds::admin.resources.social_feed.options.exclude_types.event'),
+                            'offer' => __('social-feeds::admin.resources.social_feed.options.exclude_types.offer'),
                         ])
-                        ->helperText('Vybrané typy se nezobrazí'),
+                        ->helperText(__('social-feeds::admin.resources.social_feed.help.exclude_types')),
                 ])->columns(2)
                 ->collapsed(),
         ]);
@@ -212,42 +232,42 @@ class SocialFeedResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Název')
+                    ->label(__('social-feeds::admin.resources.social_feed.table.columns.name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('account.name')
-                    ->label('Účet')
+                    ->label(__('social-feeds::admin.resources.social_feed.table.columns.account'))
                     ->description(fn (SocialFeed $record) => $record->account?->platform->label()),
 
                 Tables\Columns\TextColumn::make('layout')
-                    ->label('Layout')
+                    ->label(__('social-feeds::admin.resources.social_feed.table.columns.layout'))
                     ->formatStateUsing(fn (FeedLayout $state) => $state->label())
                     ->badge(),
 
                 Tables\Columns\TextColumn::make('posts_count')
-                    ->label('Příspěvků')
+                    ->label(__('social-feeds::admin.resources.social_feed.table.columns.posts_count'))
                     ->sortable(),
 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktivní')
+                    ->label(__('social-feeds::admin.resources.social_feed.table.columns.is_active'))
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Aktualizováno')
+                    ->label(__('social-feeds::admin.resources.social_feed.table.columns.updated_at'))
                     ->since()
                     ->sortable(),
             ])
             ->actions([
                 ActionGroup::make([
                     Action::make('refresh')
-                        ->label('Obnovit')
+                        ->label(__('social-feeds::admin.resources.social_feed.actions.refresh.label'))
                         ->icon('fal-arrows-rotate')
                         ->action(function (SocialFeed $record) {
                             RefreshFeedJob::dispatch($record->id);
                             Notification::make()
-                                ->title('Obnovení feedu bylo zařazeno do fronty')
-                                ->body('Feed "'.$record->name.'" se obnoví na pozadí.')
+                                ->title(__('social-feeds::admin.resources.social_feed.actions.refresh.queued_title'))
+                                ->body(__('social-feeds::admin.resources.social_feed.actions.refresh.queued_body', ['name' => $record->name]))
                                 ->success()
                                 ->send();
                         }),
@@ -259,13 +279,13 @@ class SocialFeedResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     BulkAction::make('refresh_all')
-                        ->label('Obnovit vybrané')
+                        ->label(__('social-feeds::admin.resources.social_feed.actions.refresh_selected.label'))
                         ->icon('fal-arrows-rotate')
                         ->action(function (Collection $records) {
                             $records->each(fn (SocialFeed $feed) => RefreshFeedJob::dispatch($feed->id));
                             Notification::make()
-                                ->title('Obnovení vybraných feedů bylo zařazeno do fronty')
-                                ->body('Na pozadí bude obnoveno '.$records->count().' vybraných feedů.')
+                                ->title(__('social-feeds::admin.resources.social_feed.actions.refresh_selected.queued_title'))
+                                ->body(__('social-feeds::admin.resources.social_feed.actions.refresh_selected.queued_body', ['count' => $records->count()]))
                                 ->success()
                                 ->send();
                         }),

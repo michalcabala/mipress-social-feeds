@@ -28,23 +28,43 @@ class SocialAccountResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'fal-share-nodes';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Sociální sítě';
+    protected static string|\UnitEnum|null $navigationGroup = null;
 
-    protected static ?string $navigationLabel = 'Propojené účty';
+    protected static ?string $navigationLabel = null;
 
-    protected static ?string $modelLabel = 'Propojený účet';
+    protected static ?string $modelLabel = null;
 
-    protected static ?string $pluralModelLabel = 'Propojené účty';
+    protected static ?string $pluralModelLabel = null;
 
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('social-feeds::admin.resources.social_account.navigation_group');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('social-feeds::admin.resources.social_account.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('social-feeds::admin.resources.social_account.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('social-feeds::admin.resources.social_account.plural_model_label');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Section::make('Informace o účtu')
+            Section::make(__('social-feeds::admin.resources.social_account.sections.account_information'))
                 ->schema([
                     Forms\Components\Select::make('platform')
-                        ->label('Platforma')
+                        ->label(__('social-feeds::admin.resources.social_account.fields.platform'))
                         ->options(
                             collect(SocialPlatform::enabled())
                                 ->mapWithKeys(fn (SocialPlatform $p) => [$p->value => $p->label()])
@@ -53,44 +73,44 @@ class SocialAccountResource extends Resource
                         ->disabled(fn (?SocialAccount $record) => $record !== null),
 
                     Forms\Components\TextInput::make('name')
-                        ->label('Název účtu / stránky')
+                        ->label(__('social-feeds::admin.resources.social_account.fields.name'))
                         ->required()
                         ->disabled(),
 
                     Forms\Components\TextInput::make('username')
-                        ->label('Uživatelské jméno')
+                        ->label(__('social-feeds::admin.resources.social_account.fields.username'))
                         ->disabled(),
 
                     Forms\Components\TextInput::make('platform_account_id')
-                        ->label('ID na platformě')
+                        ->label(__('social-feeds::admin.resources.social_account.fields.platform_account_id'))
                         ->disabled(),
                 ]),
 
-            Section::make('Stav tokenu')
+            Section::make(__('social-feeds::admin.resources.social_account.sections.token_status'))
                 ->schema([
                     TextEntry::make('token_status')
-                        ->label('Stav')
+                        ->label(__('social-feeds::admin.resources.social_account.fields.status'))
                         ->state(function (?SocialAccount $record) {
                             if (! $record) {
-                                return '—';
+                                return __('social-feeds::admin.resources.social_account.states.not_verified');
                             }
                             if ($record->isTokenExpired()) {
-                                return '❌ Token vypršel';
+                                return __('social-feeds::admin.resources.social_account.states.token_expired');
                             }
                             if ($record->isTokenExpiringSoon()) {
-                                return '⚠️ Token brzy vyprší';
+                                return __('social-feeds::admin.resources.social_account.states.token_expiring');
                             }
 
-                            return '✅ Token platný';
+                            return __('social-feeds::admin.resources.social_account.states.token_valid');
                         }),
 
                     TextEntry::make('token_expires_at')
-                        ->label('Vyprší')
-                        ->state(fn (?SocialAccount $record) => $record?->token_expires_at?->format('d.m.Y H:i') ?? 'Bez expirace'),
+                        ->label(__('social-feeds::admin.resources.social_account.fields.expires_at'))
+                        ->state(fn (?SocialAccount $record) => $record?->token_expires_at?->format('d.m.Y H:i') ?? __('social-feeds::admin.resources.social_account.states.no_expiration')),
 
                     TextEntry::make('last_verified_at')
-                        ->label('Poslední ověření')
-                        ->state(fn (?SocialAccount $record) => $record?->last_verified_at?->diffForHumans() ?? 'Neověřeno'),
+                        ->label(__('social-feeds::admin.resources.social_account.fields.last_verified'))
+                        ->state(fn (?SocialAccount $record) => $record?->last_verified_at?->diffForHumans() ?? __('social-feeds::admin.resources.social_account.states.not_verified')),
                 ])->columns(3),
         ]);
     }
@@ -105,12 +125,12 @@ class SocialAccountResource extends Resource
                     ->size(40),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Název')
+                    ->label(__('social-feeds::admin.resources.social_account.table.columns.name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('platform')
-                    ->label('Platforma')
+                    ->label(__('social-feeds::admin.resources.social_account.table.columns.platform'))
                     ->badge()
                     ->formatStateUsing(fn (SocialPlatform $state) => $state->label())
                     ->color(fn (SocialPlatform $state) => match ($state) {
@@ -120,24 +140,24 @@ class SocialAccountResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('feeds_count')
-                    ->label('Feedů')
+                    ->label(__('social-feeds::admin.resources.social_account.table.columns.feeds_count'))
                     ->counts('feeds')
                     ->sortable(),
 
                 Tables\Columns\IconColumn::make('token_valid')
-                    ->label('Token')
+                    ->label(__('social-feeds::admin.resources.social_account.table.columns.token'))
                     ->state(fn (SocialAccount $record) => ! $record->isTokenExpired())
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('last_verified_at')
-                    ->label('Ověřeno')
+                    ->label(__('social-feeds::admin.resources.social_account.table.columns.verified'))
                     ->since()
                     ->sortable(),
             ])
             ->actions([
                 ActionGroup::make([
                     Action::make('verify')
-                        ->label('Ověřit token')
+                        ->label(__('social-feeds::admin.resources.social_account.actions.verify.label'))
                         ->icon('fal-shield-check')
                         ->action(function (SocialAccount $record) {
                             $manager = app(SocialFeedManager::class);
@@ -146,21 +166,21 @@ class SocialAccountResource extends Resource
 
                             if ($valid) {
                                 Notification::make()
-                                    ->title('Token je platný')
-                                    ->body('Přístupový token účtu "'.$record->name.'" je stále platný.')
+                                    ->title(__('social-feeds::admin.resources.social_account.actions.verify.success_title'))
+                                    ->body(__('social-feeds::admin.resources.social_account.actions.verify.success_body', ['name' => $record->name]))
                                     ->success()
                                     ->send();
                             } else {
                                 Notification::make()
-                                    ->title('Token je neplatný')
-                                    ->body('Účet "'.$record->name.'" je potřeba znovu připojit, protože token už není platný.')
+                                    ->title(__('social-feeds::admin.resources.social_account.actions.verify.danger_title'))
+                                    ->body(__('social-feeds::admin.resources.social_account.actions.verify.danger_body', ['name' => $record->name]))
                                     ->danger()
                                     ->send();
                             }
                         }),
                     EditAction::make(),
                     DeleteAction::make()
-                        ->label('Odpojit'),
+                        ->label(__('social-feeds::admin.resources.social_account.actions.disconnect')),
                 ]),
             ]);
     }
