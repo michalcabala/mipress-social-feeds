@@ -207,4 +207,23 @@ return [
             ],
         ],
     ],
+    'mason' => [
+        'bricks' => [
+            'social_feed' => [
+                'label' => 'Sociální feed',
+                'fields' => [
+                    'feed_id' => 'Feed',
+                    'heading' => 'Nadpis',
+                    'layout' => 'Rozložení',
+                ],
+                'help' => [
+                    'heading' => 'Volitelný nadpis nad feedem',
+                    'layout' => 'Ponechte prázdné pro výchozí rozložení feedu',
+                ],
+                'placeholders' => [
+                    'layout' => 'Výchozí z feedu',
+                ],
+            ],
+        ],
+    ],
 ];

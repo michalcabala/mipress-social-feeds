@@ -21,7 +21,7 @@ class SocialFeedBrick extends Brick
 
     public static function getLabel(): string
     {
-        return 'Sociální feed';
+        return __('social-feeds::admin.mason.bricks.social_feed.label');
     }
 
     public static function getIcon(): string
@@ -71,7 +71,7 @@ class SocialFeedBrick extends Brick
             ->slideOver()
             ->schema([
                 Select::make('feed_id')
-                    ->label('Feed')
+                    ->label(__('social-feeds::admin.mason.bricks.social_feed.fields.feed_id'))
                     ->options(fn (): array => SocialFeed::query()
                         ->with(['account:id,name'])
                         ->active()
@@ -84,16 +84,16 @@ class SocialFeedBrick extends Brick
                     ->searchable()
                     ->required(),
                 TextInput::make('heading')
-                    ->label('Nadpis')
+                    ->label(__('social-feeds::admin.mason.bricks.social_feed.fields.heading'))
                     ->maxLength(140)
-                    ->helperText('Volitelný nadpis nad feedem'),
+                    ->helperText(__('social-feeds::admin.mason.bricks.social_feed.help.heading')),
                 Select::make('layout')
-                    ->label('Rozložení')
+                    ->label(__('social-feeds::admin.mason.bricks.social_feed.fields.layout'))
                     ->options(collect(FeedLayout::cases())->mapWithKeys(
                         fn (FeedLayout $l) => [$l->value => $l->label()]
                     )->all())
-                    ->helperText('Ponechte prázdné pro výchozí rozložení feedu')
-                    ->placeholder('Výchozí z feedu'),
+                    ->helperText(__('social-feeds::admin.mason.bricks.social_feed.help.layout'))
+                    ->placeholder(__('social-feeds::admin.mason.bricks.social_feed.placeholders.layout')),
             ]);
     }
 }

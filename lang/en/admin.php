@@ -207,4 +207,23 @@ return [
             ],
         ],
     ],
+    'mason' => [
+        'bricks' => [
+            'social_feed' => [
+                'label' => 'Social feed',
+                'fields' => [
+                    'feed_id' => 'Feed',
+                    'heading' => 'Heading',
+                    'layout' => 'Layout',
+                ],
+                'help' => [
+                    'heading' => 'Optional heading above the feed',
+                    'layout' => 'Leave empty to use the feed default layout',
+                ],
+                'placeholders' => [
+                    'layout' => 'Default from feed',
+                ],
+            ],
+        ],
+    ],
 ];
