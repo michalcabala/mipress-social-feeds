@@ -22,6 +22,7 @@ class SocialFeedsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/social-feeds.php', 'social-feeds');
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'social-feeds');
 
         $this->app->singleton(SocialFeedManager::class);
 
@@ -32,7 +33,6 @@ class SocialFeedsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'social-feeds');
         Gate::policy(SocialAccount::class, SocialAccountPolicy::class);
         Gate::policy(SocialFeedModel::class, SocialFeedPolicy::class);
 

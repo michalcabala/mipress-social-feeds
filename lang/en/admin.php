@@ -66,6 +66,7 @@ return [
                     'danger_body' => 'The account ":name" must be reconnected because the token is no longer valid.',
                 ],
                 'disconnect' => 'Disconnect',
+                'connect_label' => 'Connect :platform',
             ],
         ],
         'social_feed' => [

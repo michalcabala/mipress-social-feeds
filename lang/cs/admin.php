@@ -66,6 +66,7 @@ return [
                     'danger_body' => 'Účet ":name" je potřeba znovu připojit, protože token už není platný.',
                 ],
                 'disconnect' => 'Odpojit',
+                'connect_label' => 'Připojit :platform',
             ],
         ],
         'social_feed' => [
